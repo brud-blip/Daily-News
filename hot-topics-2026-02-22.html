@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hot Topics Dashboard — 1928 — 2026-02-22</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0f1a; color: #e0e6ed; font-family: 'Inter', sans-serif; min-height: 100vh; }
+    .header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+      padding: 32px 40px;
+    }
+    .header h1 {
+      font-size: 28px; font-weight: 700;
+      background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; margin-bottom: 8px;
+    }
+    .header .subtitle { color: #94a3b8; font-size: 14px; }
+    .stats-bar {
+      background: #0d1320; padding: 12px 40px;
+      display: flex; gap: 24px; align-items: center;
+      font-size: 13px; color: #64748b;
+    }
+    .stats-bar b { color: #e0e6ed; font-weight: 600; }
+    .filter-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: #0a0f1a; border-bottom: 1px solid #1e293b;
+      padding: 12px 40px; display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .filter-btn {
+      border-radius: 20px; border: 1px solid #334155;
+      background: transparent; color: #94a3b8;
+      padding: 6px 16px; font-size: 13px; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: #475569; color: #e0e6ed; }
+    .filter-btn.active { background: #1e3a5f; border-color: #60a5fa; color: white; }
+    .grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 20px; padding: 24px 40px;
+    }
+    @media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; padding: 16px 20px; } }
+    .card {
+      background: #111d2e; border: 1px solid #1e293b;
+      border-radius: 12px; padding: 20px;
+      display: flex; flex-direction: column; gap: 10px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover { transform: translateY(-2px); border-color: #334155; }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .card-title { font-size: 15px; font-weight: 600; color: #e0e6ed; line-height: 1.4; flex: 1; }
+    .cat-pill {
+      font-size: 11px; font-weight: 700; border-radius: 10px;
+      padding: 3px 10px; white-space: nowrap; flex-shrink: 0; color: white;
+    }
+    .card-middle { font-size: 13px; color: #94a3b8; line-height: 1.5; }
+    .entity-name { font-weight: 700; }
+    .card-bottom { margin-top: auto; }
+    .source-link { font-size: 12px; color: #64748b; text-decoration: none; }
+    .source-link:hover { color: #60a5fa; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Hot Topics Dashboard</h1>
+  <div class="subtitle">Sunday, February 22, 2026 &middot; Daily Briefing for Brud &middot; 1928 Properties</div>
+</div>
+
+<div class="stats-bar">
+  <div><b id="story-count">0</b> Stories</div>
+  <div><b id="entity-count">0</b> Entities</div>
+  <div><b id="cat-count">0</b> Categories</div>
+</div>
+
+<div class="filter-bar" id="filter-bar"></div>
+<div class="grid" id="grid"></div>
+
+<script>
+const catColors = {
+  'Regional News':  { border:'#2563eb', pill:'#2563eb', text:'#60a5fa' },
+  'Economy':        { border:'#d97706', pill:'#d97706', text:'#fbbf24' },
+  'Government':     { border:'#7c3aed', pill:'#7c3aed', text:'#c4b5fd' },
+  'Environment':    { border:'#059669', pill:'#059669', text:'#34d399' },
+  'Infrastructure': { border:'#ea580c', pill:'#ea580c', text:'#fb923c' },
+  'Energy':         { border:'#0284c7', pill:'#0284c7', text:'#38bdf8' },
+  'Agriculture':    { border:'#16a34a', pill:'#16a34a', text:'#86efac' },
+  'Property':       { border:'#ef4444', pill:'#ef4444', text:'#fca5a5' }
+};
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+const stories = [
+  {entity:"Brownsville Texas", cat:"Regional News", title:"Brownsville Adopts Balanced $253M FY2026 Budget", summary:"City Commission maintained the property tax rate at $0.603504 for the second year and passed new entertainment district safety regulations.", source:"Brownsville, TX Official Website", url:"https://www.brownsvilletx.gov/m/newsflash/home/detail/2744"},
+  {entity:"Brownsville Texas", cat:"Regional News", title:"Texas LNG Secures $5.7B Financing at Port of Brownsville", summary:"Texas LNG Brownsville LLC reached a major debt financing milestone to build an LNG export facility at the Port of Brownsville.", source:"MyRGV.com", url:"https://myrgv.com/local-news/2026/02/12/texas-lng-project-moves-forward-at-port-of-brownsville/"},
+  {entity:"North Padre Island", cat:"Regional News", title:"$15.5M TIRZ Funding Secured for Seawall Restoration", summary:"The 50-year-old North Padre Island seawall will undergo major restoration funded through Tax Increment Reinvestment Zone revenues; construction begins this fall.", source:"KIII TV", url:"https://www.kiiitv.com/article/news/community/155m-tirz-funding-secured-for-north-padre-island-seawall-repairs/503-5ba04252-6d8a-447e-9381-9c6e50a8de33"},
+  {entity:"North Padre Island", cat:"Regional News", title:"$800M Whitecap Preserve Development Advancing on NPI", summary:"A major mixed-use development project on North Padre Island continues to move forward amid strong coastal demand.", source:"Whitecap Living NPI", url:"https://whitecaplivingnpi.com/news-updates/"},
+  {entity:"Corpus Christi Drought", cat:"Regional News", title:"CC Reservoirs at 17.9% — Stage 3 Restrictions in Force", summary:"Officials warn the water emergency timeline is accelerating; Lake Texana curtailment may begin as early as mid-April 2026.", source:"Corpus Christi Today", url:"https://nationaltoday.com/us/tx/corpus-christi/news/2026/02/17/corpus-christi-faces-accelerating-water-crisis-as-reservoirs-fail-to-rebound/"},
+  {entity:"Corpus Christi TX", cat:"Regional News", title:"CC Approves Desalination Plant and $213M Groundwater Project", summary:"A new brackish water desalination plant will deliver 21.3M gallons/day; the Evangeline Groundwater Project adds 22 wells and 35 miles of pipeline.", source:"KRIS TV", url:"https://www.kristv.com/running-dry/corpus-christis-water-crisis-where-things-stand-as-the-city-spends-hundreds-of-millions"},
+  {entity:"Texas Economy", cat:"Economy", title:"Texas Job Growth to Rebound 1.1% in 2026 — Dallas Fed", summary:"AI data center boom and construction activity drive recovery after near-flat 2025; Texas led all states in job creation adding 132,500 jobs.", source:"Texas Public Radio", url:"https://www.tpr.org/news/2026-02-06/dallas-fed-texas-will-see-slight-job-growth-in-2026-after-flat-2025"},
+  {entity:"Texas Economy", cat:"Economy", title:"Texas Property Insurance Up 58% in Five Years", summary:"Homeowner insurance premiums rose at twice the national average, adding financial pressure to households across the state.", source:"Fort Worth Inc.", url:"https://fortworthinc.com/news/dallas-fed-forecasts-modest-texas-job-growth-in-2026/"},
+  {entity:"Port of Brownsville", cat:"Economy", title:"'Port Alpha' Shipyard Could Create More Jobs Than SpaceX", summary:"Saronic Technologies proposes a $3.2B AI-powered unmanned military boat manufacturing facility; Cameron County to consider tax abatement March 24.", source:"MyRGV.com", url:"https://myrgv.com/local-news/2026/02/19/port-alpha-eyes-brownsville-high-tech-shipyard-would-create-thousands-of-jobs/"},
+  {entity:"Port of Brownsville", cat:"Economy", title:"Ternium Expanding with $200M Marine Terminal at Port", summary:"New 180-acre marine terminal will boost annual steel and metal throughput to over 9 million tons at the Port of Brownsville.", source:"RGV Business Journal", url:"https://www.rgvbusinessjournal.com/news/11/02/2026/texas-lng-5-7b-financing-port-of-brownsville/"},
+  {entity:"Golden Triangle of Texas", cat:"Economy", title:"Texas A&amp;M RAMI Hub at Port of Brownsville to Open Mid-2026", summary:"The $30M Advanced Manufacturing Innovation Hub at the Port will strengthen regional workforce development and attract industrial investment.", source:"Port of Brownsville", url:"https://www.portofbrownsville.com/port-of-brownsville-thrives-key-updates-driving-economic-growth/"},
+  {entity:"Demographics", cat:"Economy", title:"Texas Adds 391K Residents — Slowest Growth Rate Since 2021", summary:"Texas reached 31.7M people but growth slowed to 1.2%, partly due to the federal immigration crackdown reducing new arrivals.", source:"Texas Tribune", url:"https://www.texastribune.org/2026/01/27/texas-population-2025-census/"},
+  {entity:"Texas GLO", cat:"Government", title:"GLO Opens $97M Infrastructure Applications for 2024 Disasters", summary:"Local Communities Program applications opened Feb. 19 and close March 23, targeting infrastructure recovery from 2024 disaster events.", source:"Texas General Land Office", url:"https://www.glo.texas.gov/about-glo/press-releases/texas-glo-announces-application-97-million-infrastructure-projects-2024"},
+  {entity:"Texas GLO", cat:"Government", title:"HUD Rescinds Biden-Era Investigation Into Texas GLO", summary:"The Trump administration's HUD dropped a politically motivated probe into the GLO's post-Hurricane Harvey disaster fund disbursement.", source:"The Real Deal Texas", url:"https://therealdeal.com/texas/2026/01/28/hud-rescinds-investigation-into-texas-general-land-office/"},
+  {entity:"TPWD", cat:"Government", title:"TPWD Closes Oyster Harvest in Matagorda and Galveston Bays", summary:"Two February closures issued for commercial and recreational harvest; a highly pathogenic avian influenza alert also issued for North Texas.", source:"TPWD", url:"https://tpwd.texas.gov/newsmedia/releases/?req=20260204a"},
+  {entity:"TPWD", cat:"Government", title:"National Invasive Species Awareness Week: Feb 23–27", summary:"TPWD urges Texans to prevent the spread of harmful non-native plants and wildlife during the annual awareness campaign.", source:"TPWD", url:"https://tpwd.texas.gov/newsmedia/releases/?req=20260220b"},
+  {entity:"2026 GLO Dune Protection", cat:"Government", title:"GLO's 2026–2030 Coastal Management Assessment Underway", summary:"The Texas General Land Office is developing its next five-year strategic assessment governing beach and dune protection along the Gulf Coast.", source:"Texas General Land Office", url:"https://www.glo.texas.gov/coastal/protecting-coast/coastal-management-program"},
+  {entity:"Upper Laguna Madre", cat:"Environment", title:"Conservation Groups Urge Navy to Halt Bombing Near Upper Laguna Madre", summary:"Environmental advocates warn proposed Navy range expansion threatens one of only six hypersaline bays in the world and 80% of Texas seagrass.", source:"Environmental Defense Fund", url:"https://www.edf.org/media/texas-conservation-groups-urge-navy-not-bomb-upper-laguna-madre"},
+  {entity:"Upper Laguna Madre", cat:"Environment", title:"Laguna Madre Estuary Strategic Plan Published by GLO", summary:"A comprehensive environmental strategy for the Laguna Madre — encompassing Baffin Bay and three tertiary bays — has been released.", source:"Texas General Land Office", url:"https://www.glo.texas.gov/sites/default/files/2025-10/laguna-madre-estuary-final-report.pdf"},
+  {entity:"Dune Construction & Restoration", cat:"Environment", title:"GLO Standards: Construction Sand Salt Must Stay Below 4ppt", summary:"Mitigation must begin concurrently with dune construction; restored dunes must equal or surpass pre-existing conditions before project close.", source:"Texas General Land Office", url:"https://www.glo.texas.gov/coastal/clean-coast-texas/clean-coast-texas-resources/technical-resources/beach-dune-resources"},
+  {entity:"Regional Parkway", cat:"Infrastructure", title:"Regional Parkway Environmental Study Advancing", summary:"TxDOT is evaluating route options for a new Corpus Christi-to-North Padre Island causeway; Segment B has federal funding in the 10-year plan.", source:"KIII TV", url:"https://www.kiiitv.com/article/news/local/regional-parkway-plans-moving-forward/503-7f2806ac-d7fe-484b-a32f-822619fddbc6"},
+  {entity:"Regional Parkway", cat:"Infrastructure", title:"SH 361 and SH 286 Widening Tied to Regional Parkway Corridor", summary:"Rodd Field Road improvements integrated into the long-range parkway plan, which will create an alternate hurricane evacuation route for NPI.", source:"KIII TV", url:"https://www.kiiitv.com/article/news/local/sh-361-regional-parkway-projects/503-98a470cd-d1ec-476d-9688-a4e24087bfb6"},
+  {entity:"Carbon Credits", cat:"Energy", title:"Texas Carbon Market Eyes $12B–$94B Investment by 2050", summary:"RMI projects massive cumulative benefit; Austin's Climate &amp; Carbon Exchange is now open; voluntary carbon issuances surged at start of 2026.", source:"Carbon Credits", url:"https://carboncredits.com/voluntary-carbon-market-in-2026-top-forecasts-and-what-they-mean-for-investors/"},
+  {entity:"Carbon Credits", cat:"Energy", title:"UT Researchers Map Path to Viable Carbon Capture in Texas", summary:"Economics remains the key barrier — adding carbon capture to natural gas plants raises costs significantly without substantial tax incentives.", source:"UT Austin News", url:"https://news.utexas.edu/2026/02/06/ut-researchers-map-the-path-to-viable-carbon-capture/"},
+  {entity:"Cattle / Agriculture / Ranching", cat:"Agriculture", title:"Ground Beef Hits $6.69/lb as Texas Cattle Supply Tightens", summary:"Cattle 500–600 lbs averaging $450/cwt; calf prices expected to climb further in 2026–2027 due to a persistent national supply shortfall.", source:"AgriLife Today", url:"https://agrilifetoday.tamu.edu/2026/02/03/texas-beef-herd-signals-higher-prices-ahead-for-producers-and-consumers/"},
+  {entity:"TX SW Cattle Raisers Assoc.", cat:"Agriculture", title:"Cattle Raisers Convention & Expo Set for March 27–29, Fort Worth", summary:"ESPN's Marty Smith headlines the annual event; early-bird pricing closed Feb. 20; discussions will cover market trends and policy updates.", source:"Oklahoma Farm Report", url:"https://www.oklahomafarmreport.com/2026/02/18/cattle-raisers-convention-expo-to-increase-registration-prices-feb-20/"},
+  {entity:"TX SW Cattle Raisers Assoc.", cat:"Agriculture", title:"TSCRA Launches Collegiate Ambassador Program", summary:"Year-long leadership development program engages agriculture students in advocacy, grassroots outreach, and industry advancement.", source:"North Texas e-News", url:"https://www.ntxe-news.com/artman/publish/article_144360.shtml"},
+  {entity:"South Texans' Property Rights", cat:"Property", title:"South Texas Ranchers Battle Border Wall Eminent Domain", summary:"Trump administration secured $50B for border wall construction; South Texas landowners mounting legal challenges to federal property seizures.", source:"Construction Owners Association", url:"https://www.constructionowners.com/news/texas-landowners-battle-border-wall-construction"},
+  {entity:"South Texans' Property Rights", cat:"Property", title:"2026 Texas Laws: Livestock Feed Exempt, Squatter Evictions Faster", summary:"SB 38 accelerates eviction timelines for squatters; border security infrastructure built on private land is now also tax exempt.", source:"Houston Public Media", url:"https://www.houstonpublicmedia.org/articles/news/texas/2025/12/30/539690/new-texas-laws-2026-taxes-immigration-ai/"}
+];
+
+const categories = [...new Set(stories.map(s => s.cat))];
+
+const fb = document.getElementById('filter-bar');
+['All', ...categories].forEach(cat => {
+  const btn = document.createElement('button');
+  btn.className = 'filter-btn' + (cat === 'All' ? ' active' : '');
+  btn.textContent = cat;
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render(cat);
+  });
+  fb.appendChild(btn);
+});
+
+function render(filter) {
+  const filtered = filter === 'All' ? stories : stories.filter(s => s.cat === filter);
+  const entities = new Set(filtered.map(s => s.entity));
+  const cats = new Set(filtered.map(s => s.cat));
+  document.getElementById('story-count').textContent = filtered.length;
+  document.getElementById('entity-count').textContent = entities.size;
+  document.getElementById('cat-count').textContent = cats.size;
+  document.getElementById('grid').innerHTML = filtered.map(s => {
+    const c = catColors[s.cat] || { border:'#334155', pill:'#334155', text:'#94a3b8' };
+    return `<div class="card" style="border-left:3px solid ${c.border};">
+      <div class="card-top">
+        <h3 class="card-title">${esc(s.title)}</h3>
+        <span class="cat-pill" style="background:${c.pill};">${esc(s.cat)}</span>
+      </div>
+      <div class="card-middle">
+        <span class="entity-name" style="color:${c.text};">${esc(s.entity)}</span> &mdash; ${s.summary}
+      </div>
+      <div class="card-bottom">
+        <a href="${s.url}" target="_blank" rel="noopener" class="source-link">${esc(s.source)}</a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+render('All');
+</script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot Topics Dashboard - February 20, 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0f1a;
+            color: #e0e6ed;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            padding: 32px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .stats-bar {
+            background: #0d1320;
+            padding: 16px 40px;
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .stats-bar span {
+            font-weight: 600;
+            color: #60a5fa;
+        }
+
+        .filter-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #0a0f1a;
+            border-bottom: 1px solid #1e293b;
+            padding: 16px 40px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 1px solid #334155;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .filter-btn:hover {
+            border-color: #475569;
+            color: #e0e6ed;
+        }
+
+        .filter-btn.active {
+            background: #1e3a5f;
+            border-color: #60a5fa;
+            color: white;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 24px 40px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1100px) {
+            .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            .header, .stats-bar, .filter-bar {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+        }
+
+        .card {
+            background: #111d2e;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: #334155;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e0e6ed;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .category-tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cat-regional { background: #2563eb; color: white; }
+        .cat-economy { background: #d97706; color: white; }
+        .cat-government { background: #7c3aed; color: white; }
+        .cat-environment { background: #059669; color: white; }
+        .cat-infrastructure { background: #ea580c; color: white; }
+        .cat-energy { background: #0284c7; color: white; }
+        .cat-agriculture { background: #16a34a; color: white; }
+        .cat-property { background: #ef4444; color: white; }
+
+        .card-content {
+            margin-bottom: 12px;
+        }
+
+        .entity-name {
+            font-weight: 700;
+        }
+
+        .ent-regional { color: #60a5fa; }
+        .ent-economy { color: #fbbf24; }
+        .ent-government { color: #c4b5fd; }
+        .ent-environment { color: #34d399; }
+        .ent-infrastructure { color: #fb923c; }
+        .ent-energy { color: #38bdf8; }
+        .ent-agriculture { color: #86efac; }
+        .ent-property { color: #fca5a5; }
+
+        .card-summary {
+            color: #94a3b8;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .card-source {
+            font-size: 12px;
+        }
+
+        .card-source a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .card-source a:hover {
+            color: #60a5fa;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Hot Topics Dashboard</h1>
+        <div class="subtitle">Friday, February 20, 2026 · Daily Briefing for Brud</div>
+    </div>
+
+    <div class="stats-bar">
+        <div><span id="story-count">0</span> Stories</div>
+        <div><span id="entity-count">0</span> Entities</div>
+        <div><span id="category-count">0</span> Categories</div>
+    </div>
+
+    <div class="filter-bar" id="filter-bar">
+        <button class="filter-btn active" onclick="filterStories('all')">All</button>
+    </div>
+
+    <div class="card-grid" id="card-grid"></div>
+
+    <script>
+        const stories = [
+            // Brownsville Texas - Regional News
+            { entity: "Brownsville Texas", cat: "Regional News", catClass: "cat-regional", entClass: "ent-regional", title: "'Port Alpha' eyes Brownsville: High-tech shipyard would create thousands of jobs", summary: "The Port of Brownsville is in discussions for a $3.2 billion next-generation shipyard that could generate more jobs than SpaceX and Rio Grande LNG combined.", source: "MyRGV.com", url: "https://myrgv.com/local-news/2026/02/19/port-alpha-eyes-brownsville-high-tech-shipyard-would-create-thousands-of-jobs/" },
+            { entity: "Brownsville Texas", cat: "Regional News", catClass: "cat-regional", entClass: "ent-regional", title: "Greater Brownsville EDC attracts $183.7M in new investment as industrial surge reshapes Cameron County", summary: "The Greater Brownsville Economic Development Corporation attracted $183.7 million in new investment and helped create 3,288 jobs in fiscal year 2025.", source: "RGV Business Journal", url: "https://www.rgvbusinessjournal.com/news/20/02/2026/greater-brownsville-edc-attracts-183-7m-in-new-investment-as-industrial-surge-reshapes-cameron-county/" },
+            { entity: "Brownsville Texas", cat: "Regional News", catClass: "cat-regional", entClass: "ent-regional", title: "Brownsville City Commission adopts balanced FY 2026 budget maintaining property tax rate", summary: "The Brownsville City Commission adopted a balanced budget of $253 million for Fiscal Year 2026 while keeping the property tax rate at $0.603504.", source: "City of Brownsville", url: "https://www.brownsvilletx.gov/m/newsflash/home/detail/2744" },
+
+            // North Padre Island - Regional News
+            { entity: "North Padre Island", cat: "Regional News", catClass: "cat-regional", entClass: "ent-regional", title: "$15.5M TIRZ funding secured for North Padre Island Seawall repairs", summary: "North Padre Island's seawall restoration is backed by $15.5 million in TIRZ funding with work set to begin this fall on the 50-year-old structure.", source: "KIII-TV", url: "https://www.kiiitv.com/article/news/community/155m-tirz-funding-secured-for-north-padre-island-seawall-repairs/503-5ba04252-6d8a-447e-9381-9c6e50a8de33" },
+            { entity: "North Padre Island", cat: "Environment", catClass: "cat-environment", entClass: "ent-environment", title: "North Padre Island Lateral pipeline abandonment project advances", summary: "Transcontinental Gas Pipe Line Company filed to abandon approximately 50 miles of 24-inch interstate natural gas transmission pipeline.", source: "Federal Energy Regulatory Commission", url: "https://regulations.justia.com/regulations/fedreg/2026/01/13/2026-00406.html" },
+
+            // Corpus Christi Drought - Regional News
+            { entity: "Corpus Christi Drought", cat: "Regional News", catClass: "cat-regional", entClass: "ent-regional", title: "Corpus Christi on track to reach dangerously low water levels by late 2026", summary: "The city is 180 days away from no longer meeting demand, with reservoirs at their lowest levels since they last filled from rainfall in 2007.", source: "KRIS-TV", url: "https://www.kristv.com/news/6-investigates/south-texas-water-crisis-explained-with-a-side-of-chaos" },
+            { entity: "Corpus Christi Drought", cat: "Regional News", catClass: "cat-regional", entClass: "ent-regional", title: "Corpus Christi's drought relief timeline jeopardized as groundwater permits head to legal hearing", summary: "Groundwater permits critical to keeping water production on schedule for November 2026 are delayed by legal challenges.", source: "KRIS-TV", url: "https://www.kristv.com/news/local-news/in-your-neighborhood/san-patricio-county/corpus-christis-drought-relief-timeline-jeopardized-as-groundwater-permits-head-to-legal-hearing" },
+
+            // Texas Economy - Economy
+            { entity: "Texas Economy", cat: "Economy", catClass: "cat-economy", entClass: "ent-economy", title: "Mild growth expected for Texas economy in 2026", summary: "Federal Reserve Bank of Dallas projects Texas employment will increase about 1.1% in 2026, following near-zero job growth in 2025.", source: "Texas Border Business", url: "https://texasborderbusiness.com/mild-growth-expected-for-texas-economy-in-2026/" },
+            { entity: "Texas Economy", cat: "Economy", catClass: "cat-economy", entClass: "ent-economy", title: "Texas job growth expected to rebound slightly in 2026, Dallas Fed says", summary: "2026 described as a year of modest recovery with employment growing gradually, shaped by technology, productivity, and structural economic changes.", source: "Fort Worth Inc", url: "https://fortworthinc.com/news/dallas-fed-forecasts-modest-texas-job-growth-in-2026/" },
+
+            // Corpus Christi TX - Regional News
+            { entity: "Corpus Christi TX", cat: "Regional News", catClass: "cat-regional", entClass: "ent-regional", title: "Corpus Christi receives detailed cost proposal for Inner Harbor Desalination Plant at $979M", summary: "The City received a preliminary Guaranteed Maximum Price of $978,770,000 for the design and construction of the Inner Harbor Desalination Plant.", source: "City of Corpus Christi", url: "https://www.corpuschristitx.gov/news/" },
+            { entity: "Corpus Christi TX", cat: "Regional News", catClass: "cat-regional", entClass: "ent-regional", title: "Abbott delivers keynote in Corpus Christi ahead of Texas early voting", summary: "Gov. Greg Abbott spoke at the 2026 Texas Independence Dinner on conservative policy priorities and election security as early voting begins February 17-27.", source: "KIII-TV", url: "https://www.kiiitv.com/article/news/local/abbott-delivers-keynote-corpus-christi-ahead-of-texas-early-voting/503-10dadfc4-0af1-420a-87b7-0b05e5de44db" },
+
+            // Golden Triangle of Texas - Economy
+            { entity: "Golden Triangle of Texas", cat: "Economy", catClass: "cat-economy", entClass: "ent-economy", title: "Golden Triangle Polymers facility expected to start up in 2026", summary: "The $8.5 billion Golden Triangle Polymers project in Orange County is expected to generate over $50 billion economic impact over 20 years with 500 full-time jobs.", source: "Golden Triangle Polymers", url: "https://www.goldentrianglepolymers.com/project-overview/" },
+            { entity: "Golden Triangle of Texas", cat: "Economy", catClass: "cat-economy", entClass: "ent-economy", title: "Chevron Phillips onboards first class of 28 process operators for Golden Triangle facility", summary: "The world-scale integrated polymers facility under construction will create more than 500 full-time jobs and approximately 4,500 construction jobs.", source: "Golden Triangle Polymers", url: "https://www.goldentrianglepolymers.com/news/" },
+
+            // Port of Brownsville - Economy
+            { entity: "Port of Brownsville", cat: "Economy", catClass: "cat-economy", entClass: "ent-economy", title: "Cameron County to weigh tax break for proposed $3.2B military boat manufacturing project", summary: "Saronic Technologies seeks tax abatements for Port Alpha shipyard that would build AI-powered military boats and support upward of 10,000 jobs.", source: "RGV Business Journal", url: "https://www.rgvbusinessjournal.com/news/19/02/2026/cameron-county-3-2b-military-boat-project-port-brownsville/" },
+            { entity: "Port of Brownsville", cat: "Economy", catClass: "cat-economy", entClass: "ent-economy", title: "Massive $5.7B LNG investment at Port of Brownsville moves closer to construction", summary: "Texas LNG Brownsville LLC has lined up $5.7 billion in financing and aims to make final construction decision in early 2026.", source: "RGV Business Journal", url: "https://www.rgvbusinessjournal.com/news/11/02/2026/texas-lng-5-7b-financing-port-of-brownsville/" },
+
+            // Texas GLO - Government
+            { entity: "Texas GLO", cat: "Government", catClass: "cat-government", entClass: "ent-government", title: "GLO Adopt-A-Beach Winter Cleanups collected over 8,000 pounds of trash", summary: "The 2026 winter beach cleanups removed more than 8,000 pounds of debris from Coastal Bend and South Padre Island beaches.", source: "Texas General Land Office", url: "https://www.glo.texas.gov/about-glo/press-releases/land-commissioner-buckingham-shares-results-2026-adopt-beach-winter-0" },
+            { entity: "Texas GLO", cat: "Government", catClass: "cat-government", entClass: "ent-government", title: "Veterans Land Board approves loan increases effective February 9, 2026", summary: "Standard land loan amounts increased from $150,000 to $200,000 and dual-spouse loans from $225,000 to $275,000.", source: "Texas General Land Office", url: "https://www.glo.texas.gov/about-glo/press-releases" },
+            { entity: "Texas GLO", cat: "Government", catClass: "cat-government", entClass: "ent-government", title: "Applications for $97 million in disaster infrastructure funding opened February 19", summary: "The Local Communities Program provides funding to help communities recover from 2024 disasters through infrastructure projects.", source: "Texas General Land Office", url: "https://www.glo.texas.gov/about-glo/press-releases/texas-glo-announces-application-97-million-infrastructure-projects-2024" },
+
+            // TPWD - Government
+            { entity: "TPWD", cat: "Government", catClass: "cat-government", entClass: "ent-government", title: "Texas Parks and Wildlife Commission awards $21.2 million in local parks grants", summary: "A new record $21.2 million approved for 50 community parks statewide to enhance outdoor recreational opportunities with trails, playgrounds, and amenities.", source: "TPWD", url: "https://tpwd.texas.gov/newsmedia/releases/?req=20260129b" },
+            { entity: "TPWD", cat: "Government", catClass: "cat-government", entClass: "ent-government", title: "TPWD closes oyster harvest area in Galveston Bay", summary: "Texas Parks and Wildlife Department closed oyster harvest areas in Galveston Bay as of February 11, 2026.", source: "TPWD", url: "https://tpwd.texas.gov/" },
+
+            // GLO Dune Protection - Environment
+            { entity: "GLO Dune Protection", cat: "Environment", catClass: "cat-environment", entClass: "ent-environment", title: "GLO updates Dune Protection and Improvement Manual for Texas Gulf Coast", summary: "Updated guidance manual provides measures for landowners and planners to preserve sand dunes and promote restoration along the coast.", source: "Texas General Land Office", url: "https://www.glo.texas.gov/sites/default/files/2025-01/Dune%20Protection%20and%20Improvement%20Manual.pdf" },
+            { entity: "GLO Dune Protection", cat: "Environment", catClass: "cat-environment", entClass: "ent-environment", title: "County-specific dune protection plans updated through 2026", summary: "Galveston County and other coastal counties received updated dune protection and beach access plans to guide development and conservation.", source: "Texas General Land Office", url: "https://www.glo.texas.gov/sites/default/files/2025-02/Galveston%20County.pdf" },
+
+            // Regional Parkway - Infrastructure
+            { entity: "Regional Parkway", cat: "Infrastructure", catClass: "cat-infrastructure", entClass: "ent-infrastructure", title: "Grand Parkway Segment B-1 construction scheduled to begin in 2026", summary: "The 14.2-mile tolled corridor from FM 646 to south of FM 2403 in Galveston and Brazoria counties is scheduled for construction through Fall 2026.", source: "League City Listens", url: "https://leaguecitylistens.com/grandparkway" },
+            { entity: "Regional Parkway", cat: "Infrastructure", catClass: "cat-infrastructure", entClass: "ent-infrastructure", title: "Oak Hill Parkway Project set to finish construction in mid-2026", summary: "TxDOT estimates the major Austin area Oak Hill Parkway Project will be completed by mid-2026 after years of construction.", source: "FOX 7 Austin", url: "https://www.fox7austin.com/news/austins-oak-hill-parkway-project-be-finished-mid-2026-txdot-says" },
+
+            // Upper Laguna Madre - Environment
+            { entity: "Upper Laguna Madre", cat: "Environment", catClass: "cat-environment", entClass: "ent-environment", title: "Upper Laguna Madre remains top destination for anglers in 2026", summary: "The 130-mile shallow lagoon continues to attract anglers worldwide for Black Drum, Red Drum, and Speckled Seatrout fishing.", source: "FishingBooker", url: "https://fishingbooker.com/blog/laguna-madre-fishing/" },
+            { entity: "Upper Laguna Madre", cat: "Environment", catClass: "cat-environment", entClass: "ent-environment", title: "Laguna Madre houses nearly 80% of all seagrasses in Texas", summary: "The hypersaline coastal lagoon ecosystem continues to be critical habitat for seagrasses and 75% of the global Redhead duck population.", source: "TPWD", url: "https://tpwd.texas.gov/landwater/water/habitats/bays/ulm/ulm_index.phtml" },
+
+            // Carbon Credits - Energy
+            { entity: "Carbon Credits", cat: "Energy", catClass: "cat-energy", entClass: "ent-energy", title: "Texas Carbon Management Roadmap released in January 2026", summary: "Comprehensive framework outlines how Texas can lead carbon capture deployment, potentially attracting $150 billion in investment by 2050.", source: "Great Plains Institute", url: "https://carboncaptureready.betterenergy.org/wp-content/uploads/2026/01/Texas-Carbon-Management-Roadmap.pdf" },
+            { entity: "Carbon Credits", cat: "Energy", catClass: "cat-energy", entClass: "ent-energy", title: "Mexico-Texas seminar advances carbon credit standards for ranchers", summary: "Over 100 ranchers from northeastern Mexico and Texas gathered in February 2026 for binational seminar on high-integrity carbon credits through responsible land management.", source: "Mexico Business News", url: "https://mexicobusiness.news/sustainability/news/mexico-texas-seminar-advances-carbon-credit-standards" },
+
+            // Cattle/Agriculture/Ranching - Agriculture
+            { entity: "Cattle/Agriculture/Ranching", cat: "Agriculture", catClass: "cat-agriculture", entClass: "ent-agriculture", title: "Texas ranchers runner-up in national Achievement Award contest", summary: "Layton and Jessi Schur of Hale County Farm Bureau took runner-up in American Farm Bureau Federation's Achievement Award in February 2026.", source: "Texas Agriculture", url: "https://texasagriculture.texasfarmbureau.org/articles/texas-ranchers-runner-up-in-national-achievement-award-contest" },
+            { entity: "Cattle/Agriculture/Ranching", cat: "Agriculture", catClass: "cat-agriculture", entClass: "ent-agriculture", title: "Texas maintains 12 million head of cattle, leading nation in beef production", summary: "Texas leads the country with 12 million head of cattle, nearly double the No. 2 state, with strong prices expected through 2025-2026.", source: "Texas Farm Credit", url: "https://texasfarmcredit.com/resources/your-guide-to-the-texas-cattle-industry/" },
+
+            // TX SW Cattle Raisers - Agriculture
+            { entity: "TX SW Cattle Raisers", cat: "Agriculture", catClass: "cat-agriculture", entClass: "ent-agriculture", title: "Cattle Raisers Convention & Expo scheduled for March 27-29, 2026", summary: "The Southwest's largest cattle industry event will be held March 27-29, 2026, bringing together professionals from across the region.", source: "TSCRA", url: "https://cattleraisersconvention.com/" },
+            { entity: "TX SW Cattle Raisers", cat: "Agriculture", catClass: "cat-agriculture", entClass: "ent-agriculture", title: "TSCRA announces 2026 Young Cattlemen's Conference opportunities", summary: "The 8-day leadership program in May-June 2026 will take participants to Denver, Nebraska, Ohio and Washington D.C. to develop young beef industry leaders.", source: "TSLN", url: "https://www.tsln.com/news/texas-southwestern-cattle-raisers-association-announces-2026-young-cattlemens-conference-opportunities/" },
+
+            // South Texans' Property Rights - Property
+            { entity: "South Texans' Property Rights", cat: "Property", catClass: "cat-property", entClass: "ent-property", title: "Senate Bill 38 streamlines Texas eviction process effective January 1, 2026", summary: "New law allows landlords to seek summary judgments without trial in certain cases and requires tenants to swear appeals are made in good faith.", source: "FOX 7 Austin", url: "https://www.fox7austin.com/news/sb-38-how-new-property-rights-law-changes-game-texas-renters" },
+            { entity: "South Texans' Property Rights", cat: "Property", catClass: "cat-property", entClass: "ent-property", title: "Homestead exemptions raised to $140,000 for all Texas homeowners in 2026", summary: "Property tax exemptions increase to $140,000 for all homeowners and $200,000 for those disabled or 65+, with border-security infrastructure now tax exempt.", source: "Houston Public Media", url: "https://www.houstonpublicmedia.org/articles/news/texas/2025/12/30/539690/new-texas-laws-2026-taxes-immigration-ai/" },
+
+            // Demographics - Economy
+            { entity: "South Texas Demographics", cat: "Economy", catClass: "cat-economy", entClass: "ent-economy", title: "South Texas region population exceeds 5 million residents", summary: "The 28-county South Texas region grew by nearly 4% between 2012-2022 with a median age of 31.8 years, younger than the statewide median of 35.", source: "Texas Comptroller", url: "https://comptroller.texas.gov/economy/economic-data/regions/2024/south.php" },
+            { entity: "South Texas Demographics", cat: "Economy", catClass: "cat-economy", entClass: "ent-economy", title: "Texas population growth slows in 2025 but state maintains national leadership", summary: "Nearly 32 million people now live in Texas, though population grew at a slower pace in 2025 than previous years according to federal data.", source: "Texas Tribune", url: "https://www.texastribune.org/2026/01/27/texas-population-2025-census/" }
+        ];
+
+        function render(filter = 'all') {
+            const grid = document.getElementById('card-grid');
+            grid.innerHTML = '';
+
+            let filtered = filter === 'all' ? stories : stories.filter(s => s.cat === filter);
+
+            filtered.forEach(story => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-title">${story.title}</div>
+                        <div class="category-tag ${story.catClass}">${story.cat}</div>
+                    </div>
+                    <div class="card-content">
+                        <span class="entity-name ${story.entClass}">${story.entity}</span> —
+                        <span class="card-summary">${story.summary}</span>
+                    </div>
+                    <div class="card-source">
+                        <a href="${story.url}" target="_blank" rel="noopener">${story.source} →</a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            // Update stats
+            const entities = new Set(filtered.map(s => s.entity));
+            const categories = new Set(filtered.map(s => s.cat));
+
+            document.getElementById('story-count').textContent = filtered.length;
+            document.getElementById('entity-count').textContent = entities.size;
+            document.getElementById('category-count').textContent = categories.size;
+        }
+
+        function filterStories(category) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Re-render
+            render(category);
+        }
+
+        // Initialize categories
+        const categories = [...new Set(stories.map(s => s.cat))];
+        const filterBar = document.getElementById('filter-bar');
+
+        categories.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'filter-btn';
+            btn.textContent = cat;
+            btn.onclick = () => filterStories(cat);
+            filterBar.appendChild(btn);
+        });
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
