@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily News Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0f1a;
+            color: #e0e6ed;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+            padding: 48px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            font-size: 15px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        .date-group {
+            margin-bottom: 32px;
+        }
+
+        .date-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            padding-left: 4px;
+        }
+
+        .report-card {
+            background: linear-gradient(135deg, #111827, #1a2332);
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .report-card:hover {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #151f2e, #1e2d3f);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
+        }
+
+        .report-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .report-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .icon-hot {
+            background: linear-gradient(135deg, #f97316, #ef4444);
+        }
+
+        .icon-digest {
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+        }
+
+        .report-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .report-type {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .report-arrow {
+            color: #475569;
+            font-size: 20px;
+            transition: color 0.2s ease;
+        }
+
+        .report-card:hover .report-arrow {
+            color: #60a5fa;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 24px;
+            color: #475569;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 32px;
+            color: #334155;
+            font-size: 13px;
+            border-top: 1px solid #1e293b;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📡 Daily News Dashboard</h1>
+        <div class="subtitle">Hot topics and digests, updated daily</div>
+    </div>
+
+    <div class="container" id="reports">
+        <div class="empty-state">
+            <p>Loading reports...</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        Auto-updated daily
+    </div>
+
+    <script>
+        // This script scans for HTML files based on known naming pattern
+        // and builds the index dynamically
+        
+        function formatDate(dateStr) {
+            const d = new Date(dateStr + 'T12:00:00');
+            return d.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        function generateDates() {
+            // Generate dates from today back 90 days
+            const dates = [];
+            const today = new Date();
+            for (let i = 0; i < 90; i++) {
+                const d = new Date(today);
+                d.setDate(d.getDate() - i);
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                dates.push(`${yyyy}-${mm}-${dd}`);
+            }
+            return dates;
+        }
+
+        async function checkFile(url) {
+            try {
+                const resp = await fetch(url, { method: 'HEAD' });
+                return resp.ok;
+            } catch {
+                return false;
+            }
+        }
+
+        async function buildIndex() {
+            const dates = generateDates();
+            const container = document.getElementById('reports');
+            const found = [];
+
+            // Check all dates in parallel for speed
+            const checks = [];
+            for (const date of dates) {
+                const files = [
+                    { url: `hot-topics-${date}.html`, type: 'Hot Topics', icon: '🔥', iconClass: 'icon-hot' },
+                    { url: `hot-topics-digest-${date}.html`, type: 'Digest', icon: '📋', iconClass: 'icon-digest' }
+                ];
+                for (const file of files) {
+                    checks.push(
+                        checkFile(file.url).then(exists => {
+                            if (exists) {
+                                found.push({ date, ...file });
+                            }
+                        })
+                    );
+                }
+            }
+
+            await Promise.all(checks);
+
+            if (found.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No reports found yet.</p></div>';
+                return;
+            }
+
+            // Sort by date descending, then type
+            found.sort((a, b) => {
+                if (b.date !== a.date) return b.date.localeCompare(a.date);
+                return a.type.localeCompare(b.type);
+            });
+
+            // Group by date
+            const grouped = {};
+            for (const item of found) {
+                if (!grouped[item.date]) grouped[item.date] = [];
+                grouped[item.date].push(item);
+            }
+
+            let html = '';
+            for (const [date, items] of Object.entries(grouped)) {
+                html += `<div class="date-group">`;
+                html += `<div class="date-label">${formatDate(date)}</div>`;
+                for (const item of items) {
+                    html += `
+                        <a href="${item.url}" class="report-card">
+                            <div class="report-info">
+                                <div class="report-icon ${item.iconClass}">${item.icon}</div>
+                                <div>
+                                    <div class="report-title">${item.type} — ${formatDate(date)}</div>
+                                    <div class="report-type">${item.url}</div>
+                                </div>
+                            </div>
+                            <div class="report-arrow">→</div>
+                        </a>
+                    `;
+                }
+                html += `</div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        buildIndex();
+    </script>
+</body>
+</html>
